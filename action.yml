@@ -1,0 +1,53 @@
+name: 'conventional-semver'
+description: 'Calculate next semantic version from conventional commits — pure bash, no dependencies'
+branding:
+  icon: 'tag'
+  color: 'blue'
+
+inputs:
+  prefix:
+    description: 'Tag prefix (e.g. "v" produces v1.2.3)'
+    required: false
+    default: 'v'
+  default_bump:
+    description: 'Bump type when no conventional commits found (major/minor/patch/none)'
+    required: false
+    default: 'patch'
+  initial_version:
+    description: 'Starting version when no tags exist'
+    required: false
+    default: '0.0.0'
+
+outputs:
+  version:
+    description: 'Next semantic version (e.g. 1.2.3)'
+    value: ${{ steps.semver.outputs.version }}
+  version_tag:
+    description: 'Next version with prefix (e.g. v1.2.3)'
+    value: ${{ steps.semver.outputs.version_tag }}
+  previous_version:
+    description: 'Previous version without prefix (e.g. 1.0.0)'
+    value: ${{ steps.semver.outputs.previous_version }}
+  previous_version_tag:
+    description: 'Previous version tag (e.g. v1.0.0), empty if no tags exist'
+    value: ${{ steps.semver.outputs.previous_version_tag }}
+  changelog:
+    description: 'Markdown changelog grouped by commit type'
+    value: ${{ steps.semver.outputs.changelog }}
+  bump:
+    description: 'Bump type applied: major / minor / patch / none'
+    value: ${{ steps.semver.outputs.bump }}
+  last_commit:
+    description: 'SHA of the HEAD commit at time of calculation'
+    value: ${{ steps.semver.outputs.last_commit }}
+
+runs:
+  using: composite
+  steps:
+    - id: semver
+      shell: bash
+      env:
+        INPUT_PREFIX: ${{ inputs.prefix }}
+        INPUT_DEFAULT_BUMP: ${{ inputs.default_bump }}
+        INPUT_INITIAL_VERSION: ${{ inputs.initial_version }}
+      run: ${{ github.action_path }}/entrypoint.sh
